@@ -4,17 +4,24 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Attempt from './pages/Attempt';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Navbar />
-      <Routes>
-        <Route path="/"          element={<Dashboard />} />
-        <Route path="/login"     element={<Login />} />
-        <Route path="/register"  element={<Register />} />
-        <Route path="/attempt"   element={<Attempt />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Navbar />
+        <Routes>
+          <Route path="/login"     element={<Login />} />
+          <Route path="/register"  element={<Register />} />
+          
+          <Route element={<ProtectedRoute />}>
+            <Route path="/"          element={<Dashboard />} />
+            <Route path="/attempt"   element={<Attempt />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }

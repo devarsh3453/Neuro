@@ -4,6 +4,14 @@ const Attempt = require('../models/Attempt');
 const Question = require('../models/Question');
 const { protect } = require('../middleware/authMiddleware');
 const { validate } = require('../middleware/validate');
+const { 
+  calculateHesitationScore,
+  calculateConfidenceScore,
+  calculateImpulsivityScore,
+  calculateReasoningScore,
+  classifyCognitivePattern,
+  generateFeedback
+} = require('../ai/index');
 
 const router = express.Router();
 
@@ -46,6 +54,67 @@ router.post(
 
       await attempt.save();
 
+      // --- AI Engine Processing ---
+      try {
+        // Step 1: Calculate all four scores
+        const hesitationScore = calculateHesitationScore(
+          attempt.timeToFirstInput
+        );
+        const confidenceScore = calculateConfidenceScore(
+          attempt.editCount
+        );
+        const impulsivityScore = calculateImpulsivityScore(
+          attempt.totalTime, 
+          attempt.isCorrect
+        );
+
+        // Step 2: Get the question's idealExplanation
+        // for reasoning comparison
+        const fullQuestion = await Question.findById(
+          attempt.questionId
+        ).select('idealExplanation subject');
+
+        const reasoningScore = calculateReasoningScore(
+          attempt.reasoningText,
+          fullQuestion ? fullQuestion.idealExplanation : null
+        );
+
+        // Step 3: Classify cognitive pattern
+        const cognitivePattern = classifyCognitivePattern(
+          hesitationScore,
+          confidenceScore,
+          impulsivityScore,
+          reasoningScore
+        );
+
+        // Step 4: Generate personalised feedback
+        const feedback = generateFeedback({
+          isCorrect: attempt.isCorrect,
+          cognitivePattern,
+          hesitationScore,
+          confidenceScore,
+          impulsivityScore,
+          reasoningScore,
+          questionSubject: fullQuestion ? 
+            fullQuestion.subject : 'General'
+        });
+
+        // Step 5: Update the attempt with AI results
+        attempt.hesitationScore = hesitationScore;
+        attempt.confidenceScore = confidenceScore;
+        attempt.impulsivityScore = impulsivityScore;
+        attempt.reasoningScore = reasoningScore;
+        attempt.cognitivePattern = cognitivePattern;
+        attempt.feedback = feedback;
+        await attempt.save();
+
+      } catch (aiError) {
+        // AI processing failure should NOT break 
+        // the attempt save — just log it
+        console.error('AI Engine error:', aiError.message);
+      }
+      // --- End AI Engine Processing ---
+
       res.status(201).json({
         message: 'Attempt saved successfully',
         attempt: {
@@ -58,6 +127,12 @@ router.post(
           totalTime: attempt.totalTime,
           reasoningText: attempt.reasoningText,
           attemptedAt: attempt.attemptedAt,
+          hesitationScore: attempt.hesitationScore,
+          confidenceScore: attempt.confidenceScore,
+          impulsivityScore: attempt.impulsivityScore,
+          reasoningScore: attempt.reasoningScore,
+          cognitivePattern: attempt.cognitivePattern,
+          feedback: attempt.feedback
         },
       });
     } catch (err) {
