@@ -2,6 +2,7 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const Question = require('./models/Question');
+const User = require('./models/User');
 
 const questions = [
   {
@@ -86,6 +87,23 @@ const seed = async () => {
 
     await Question.insertMany(questions);
     console.log('✅ 5 questions seeded successfully');
+
+    // Create admin user
+    const adminEmail = 'admin@neurotrace.com';
+    const existingAdmin = await User.findOne({ email: adminEmail });
+
+    if (!existingAdmin) {
+      const admin = new User({
+        name: 'NeuroTrace Admin',
+        email: adminEmail,
+        passwordHash: 'Admin2024',
+        role: 'admin',
+      });
+      await admin.save();
+      console.log(`✅ Admin user created: ${adminEmail}`);
+    } else {
+      console.log('ℹ️ Admin user already exists');
+    }
 
     await mongoose.disconnect();
     process.exit(0);
