@@ -22,7 +22,12 @@ export default function Login() {
       
       login(token, user);
       toast.success('Welcome back!');
-      navigate('/');
+      
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       const message = err.response?.data?.error || 'Login failed';
       toast.error(message);

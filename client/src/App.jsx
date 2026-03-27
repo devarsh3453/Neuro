@@ -4,6 +4,8 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Attempt from './pages/Attempt';
+import AdminDashboard from './pages/AdminDashboard';
+import NotFound from './pages/NotFound';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -18,7 +20,10 @@ export default function App() {
           
           <Route element={<ProtectedRoute />}>
             <Route path="/"          element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/attempt"   element={<Attempt />} />
+            <Route path="/admin"     element={<AdminDashboard />} />
+            <Route path="*"          element={<NotFound />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -1,10 +1,10 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
 });
 
-// Request interceptor — attach JWT from localStorage if present
+// Request interceptor: add auth token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('neurotrace_token');
   if (token) {
@@ -12,5 +12,18 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Response interceptor: handle 401
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('neurotrace_token');
+      // Using window.location to force a full reload and redirect
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;

@@ -18,20 +18,22 @@ export default function Attempt() {
   const navigate = useNavigate();
   const { recordFirstInput, recordEdit, getMetrics, resetTracker } = useBehaviorTracker();
 
+  const fetchQuestions = async () => {
+    try {
+      setPageState('loading');
+      const response = await api.get('/questions');
+      setQuestions(response.data.questions);
+      setPageState('ready');
+    } catch (err) {
+      toast.error('Failed to load questions');
+      navigate('/dashboard');
+    }
+  };
+
   // Fetch questions on mount
   useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
-        const response = await api.get('/questions');
-        setQuestions(response.data.questions);
-        setPageState('ready');
-      } catch (err) {
-        toast.error('Failed to load questions');
-        navigate('/');
-      }
-    };
     fetchQuestions();
-  }, [navigate]);
+  }, []);
 
   // Reset tracker when question changes
   useEffect(() => {
@@ -87,9 +89,41 @@ export default function Attempt() {
       setPageState('ready');
       setResult(null);
     } else {
-      navigate('/');
+      setCurrentIndex(questions.length); // Trigger completion screen
     }
   };
+
+  const handlePracticeAgain = () => {
+    setCurrentIndex(0);
+    setResult(null);
+    fetchQuestions();
+  };
+
+  if (currentIndex >= questions.length && questions.length > 0) {
+    return (
+      <div style={{ maxWidth: '600px', margin: '50px auto', padding: '40px', backgroundColor: '#fff', borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', textAlign: 'center' }}>
+        <div style={{ fontSize: '80px', marginBottom: '20px' }}>✅</div>
+        <h1 style={{ fontSize: '2.2rem', color: '#2c3e50', marginBottom: '15px' }}>You've completed all questions!</h1>
+        <p style={{ fontSize: '1.2rem', color: '#7f8c8d', marginBottom: '40px', lineHeight: '1.6' }}>
+          Great work. Check your dashboard to see your full cognitive profile.
+        </p>
+        <div style={{ display: 'grid', gap: '15px' }}>
+          <button 
+            onClick={() => navigate('/dashboard')}
+            style={{ padding: '16px', backgroundColor: '#3498db', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', transition: '0.2s' }}
+          >
+            View My Dashboard
+          </button>
+          <button 
+            onClick={handlePracticeAgain}
+            style={{ padding: '16px', backgroundColor: '#f8f9fa', color: '#2c3e50', border: '2px solid #eee', borderRadius: '12px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', transition: '0.2s' }}
+          >
+            Practice Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (pageState === 'loading') {
     return <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>Loading questions...</div>;
@@ -242,23 +276,14 @@ export default function Attempt() {
           </div>
 
           <div style={{ display: 'flex', gap: '15px' }}>
-            {currentIndex < questions.length - 1 ? (
-              <button
-                onClick={handleNext}
-                style={{ flex: 1, padding: '15px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}
-              >
-                Next Question
-              </button>
-            ) : (
-              <button
-                onClick={() => navigate('/')}
-                style={{ flex: 1, padding: '15px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}
-              >
-                Finish Quiz
-              </button>
-            )}
             <button
-              onClick={() => navigate('/')}
+              onClick={handleNext}
+              style={{ flex: 1, padding: '15px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}
+            >
+              {currentIndex < questions.length - 1 ? 'Next Question' : 'Finish Quiz'}
+            </button>
+            <button
+              onClick={() => navigate('/dashboard')}
               style={{ flex: 1, padding: '15px', backgroundColor: '#fff', color: '#333', border: '1px solid #ddd', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}
             >
               Back to Dashboard

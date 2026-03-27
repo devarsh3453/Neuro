@@ -1,9 +1,15 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const getBrandRoute = () => {
+    if (!isAuthenticated) return '/login';
+    return user?.role === 'admin' ? '/admin' : '/dashboard';
+  };
 
   const handleLogout = () => {
     logout();
@@ -21,15 +27,34 @@ export default function Navbar() {
         color: '#fff',
       }}
     >
-      <Link to="/" style={{ fontWeight: 'bold', fontSize: '1.2rem', letterSpacing: '1px', color: '#fff', textDecoration: 'none' }}>
+      <Link to={getBrandRoute()} style={{ fontWeight: 'bold', fontSize: '1.2rem', letterSpacing: '1px', color: '#fff', textDecoration: 'none' }}>
         NeuroTrace
       </Link>
       <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
         {isAuthenticated ? (
           <>
-            <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>
+            <Link 
+              to="/dashboard" 
+              style={{ 
+                color: (location.pathname === '/' || location.pathname === '/dashboard') ? '#3498db' : '#fff', 
+                textDecoration: 'none',
+                fontWeight: (location.pathname === '/' || location.pathname === '/dashboard') ? 'bold' : 'normal'
+              }}
+            >
               Dashboard
             </Link>
+            {user?.role === 'admin' && (
+              <Link 
+                to="/admin" 
+                style={{ 
+                  color: location.pathname === '/admin' ? '#3498db' : '#fff', 
+                  textDecoration: 'none',
+                  fontWeight: location.pathname === '/admin' ? 'bold' : 'normal'
+                }}
+              >
+                Admin
+              </Link>
+            )}
             <button 
               onClick={handleLogout}
               style={{ 

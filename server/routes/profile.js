@@ -1,5 +1,6 @@
 const express = require('express');
 const Attempt = require('../models/Attempt');
+const User = require('../models/User');
 const { protect, authorizeAdmin } = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -65,7 +66,8 @@ router.get('/my', protect, async (req, res) => {
       .sort({ attemptedAt: -1 });
 
     const stats = calculateProfileStats(userId, attempts);
-    res.status(200).json(stats);
+    const user = await User.findById(userId);
+    res.status(200).json({ ...stats, name: user?.name || 'Student' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

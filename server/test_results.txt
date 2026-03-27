@@ -1,0 +1,52 @@
+1. Logging in...
+Login successful.
+
+2. Fetching questions...
+Found question: 69c4cb2162c27d43f42f4b39
+
+3. Submitting attempt WITH reasoning...
+Attempt 1 Result:
+{
+  "message": "Attempt saved successfully",
+  "attempt": {
+    "id": "69c511dc8fe079a8d5ca3fa9",
+    "questionId": "69c4cb2162c27d43f42f4b39",
+    "finalAnswer": "O(log n)",
+    "isCorrect": true,
+    "timeToFirstInput": 8500,
+    "editCount": 3,
+    "totalTime": 35,
+    "reasoningText": "Binary search divides the array in half each time, which means it eliminates half the elements at every step giving logarithmic time",
+    "attemptedAt": "2026-03-26T11:00:44.429Z",
+    "hesitationScore": 85,
+    "confidenceScore": 35,
+    "impulsivityScore": 15,
+    "reasoningScore": 48,
+    "cognitivePattern": "low-confidence",
+    "feedback": "Great work getting this right! You revised your answer several times, which suggests some uncertainty. Your reasoning shows partial understanding. Try to be more detailed in your explanations."
+  }
+}
+
+
+4. Submitting attempt WITHOUT reasoning...
+Attempt 2 Result:
+{
+  "message": "Attempt saved successfully",
+  "attempt": {
+    "id": "69c511dc8fe079a8d5ca3fae",
+    "questionId": "69c4cb2162c27d43f42f4b39",
+    "finalAnswer": "O(n)",
+    "isCorrect": false,
+    "timeToFirstInput": 2000,
+    "editCount": 0,
+    "totalTime": 8,
+    "reasoningText": "",
+    "attemptedAt": "2026-03-26T11:00:44.780Z",
+    "hesitationScore": 25,
+    "confidenceScore": 95,
+    "impulsivityScore": 95,
+    "reasoningScore": null,
+    "cognitivePattern": "rushing",
+    "feedback": "This one was tricky, but every attempt helps you learn. You answered very quickly — make sure you are reading the full question. Try slowing down — take at least 15 seconds to read and think before answering."
+  }
+}
