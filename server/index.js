@@ -1,22 +1,35 @@
-// NeuroTrace - Phase 1 scaffold
+// NeuroTrace - Backend Entry Point
 require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
+
+// Router imports
 const authRouter = require('./routes/auth');
 const questionsRouter = require('./routes/questions');
 const attemptsRouter = require('./routes/attempts');
 const profileRouter = require('./routes/profile');
 const analyticsRouter = require('./routes/analytics');
 
-// Connect to MongoDB
-connectDB();
-
 const app = express();
 
-// Middleware
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -45,6 +58,11 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+if (require.main === module) {
+  connectDB();
+  app.listen(PORT, () => {
+    console.log('Server running on port ' + PORT);
+  });
+}
+
+module.exports = app;

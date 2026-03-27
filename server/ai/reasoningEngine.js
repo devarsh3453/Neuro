@@ -3,7 +3,7 @@
  * Reasoning Score Module (Cosine Similarity)
  */
 
-const natural = require('natural');
+// Unused dependency removed for Jest compatibility
 const stopword = require('stopword');
 
 /**

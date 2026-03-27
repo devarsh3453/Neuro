@@ -33,6 +33,11 @@ function classifyCognitivePattern(hesitationScore, confidenceScore, impulsivityS
     return "guessing";
   }
 
+  // Struggling — high hesitation, low confidence
+  if (hesitationScore >= 70 && confidenceScore <= 55) {
+    return "struggling";
+  }
+
   // Low confidence — keeps changing answers
   if (confidenceScore <= 35 && impulsivityScore <= 50) {
     return "low-confidence";
@@ -43,10 +48,6 @@ function classifyCognitivePattern(hesitationScore, confidenceScore, impulsivityS
     return "rushing";
   }
 
-  // Struggling — high hesitation, low confidence
-  if (hesitationScore >= 70 && confidenceScore <= 55) {
-    return "struggling";
-  }
 
   // Default fallback
   return "needs-review";
